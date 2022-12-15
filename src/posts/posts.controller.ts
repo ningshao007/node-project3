@@ -29,7 +29,7 @@ class PostsController implements Controller {
 		const createdPost = new this.post({
 			...postData,
 			// @ts-ignore
-			author: request.user._id,
+			// author: request.user._id,
 		});
 		createdPost.save().then((savedPost) => {
 			response.send(savedPost);

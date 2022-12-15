@@ -1,7 +1,8 @@
-import { IsString } from 'class-validator';
+import { IsMongoId, IsString } from 'class-validator';
 
 class CreatePostDto {
-	@IsString()
+	// NOTE: 关联mongoId
+	@IsMongoId()
 	public author: string;
 
 	@IsString()

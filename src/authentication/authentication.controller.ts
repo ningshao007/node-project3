@@ -76,7 +76,7 @@ class AuthenticationController implements Controller {
 	}
 
 	private createToken(user: User): TokenData {
-		const expiresIn = 60 * 60;
+		const expiresIn = 60 * 60 * 100;
 		const secret = process.env.JWT_SECRET;
 
 		return {
