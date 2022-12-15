@@ -5,6 +5,7 @@ import { User } from './user.interface';
 const addressSchema = new mongoose.Schema({
 	city: String,
 	street: String,
+	country: String,
 });
 
 const userSchema = new mongoose.Schema({
@@ -16,7 +17,8 @@ const userSchema = new mongoose.Schema({
 		type: addressSchema,
 		require: false,
 		default: {
-			city: '法制市',
+			country: '英国',
+			city: '白金汉宫',
 			street: '民主路',
 		},
 	},
