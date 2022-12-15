@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { User } from './user.interface';
 
 const userSchema = new mongoose.Schema({
 	email: String,
@@ -6,6 +7,6 @@ const userSchema = new mongoose.Schema({
 	password: String,
 });
 
-const userModal = mongoose.model('User', userSchema);
+const userModal = mongoose.model<User & mongoose.Document>('User', userSchema);
 
 export { userModal };
