@@ -3,7 +3,7 @@ class HttpException extends Error {
 	public message: string;
 
 	constructor(status: number, message: string) {
-		super(message);
+		super();
 
 		this.status = status;
 		this.message = message;

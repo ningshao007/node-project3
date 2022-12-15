@@ -25,13 +25,17 @@ class UserController implements Controller {
 	private getAllPostsOfUser = async (request: RequestWithUser, response: Response, next: NextFunction) => {
 		const userId = request.params.id;
 
-		if (userId === request.user._id.toString()) {
-			const posts = await this.post.find({ author: userId });
+		try {
+			if (userId === request.user._id.toString()) {
+				const posts = await this.post.find({ author: userId });
 
-			response.send(posts);
+				response.json(posts);
+			} else {
+				throw new NotAuthorizedException();
+			}
+		} catch (error) {
+			response.status(500).send({ message: error.message });
 		}
-
-		next(new NotAuthorizedException());
 	};
 
 	private getUserById = async (request: Request, response: Response, next: NextFunction) => {
