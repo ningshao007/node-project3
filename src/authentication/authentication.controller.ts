@@ -23,6 +23,7 @@ class AuthenticationController implements Controller {
 	private initializeRoutes() {
 		this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), this.registration);
 		this.router.post(`${this.path}/login`, validationMiddleware(LogInDto), this.loggingIn);
+		this.router.post(`${this.path}/logout`, this.loggingOut);
 	}
 
 	private registration = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
@@ -55,6 +56,7 @@ class AuthenticationController implements Controller {
 				user.password = undefined;
 				const tokenData = this.createToken(user);
 				response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+
 				response.send(user);
 			} else {
 				next(new WrongCredentialException());
@@ -62,6 +64,11 @@ class AuthenticationController implements Controller {
 		} else {
 			next(new WrongCredentialException());
 		}
+	};
+
+	private loggingOut = (request: express.Request, response: express.Response) => {
+		response.writeHead(200, { 'Set-Cookie': ['Authorization=; Max-age=0'] });
+		response.send('已退出系统');
 	};
 
 	private createCookie(tokenData: TokenData) {

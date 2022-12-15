@@ -8,7 +8,6 @@ import { userModel } from '../users/user.model';
 
 async function authMiddleware(request: RequestWithUser, response: Response, next: NextFunction) {
 	const cookies = request.cookies;
-	console.log('cookies', cookies);
 
 	if (cookies && cookies.Authorization) {
 		const secret = process.env.JWT_SECRET;
