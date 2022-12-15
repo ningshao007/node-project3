@@ -1,9 +1,10 @@
-import { HttpException } from '../exceptions/HttpException';
 import * as express from 'express';
 import Controller from '../interfaces/controller.interface';
 import Post from './post.interface';
 import { postModel } from './posts.model';
 import { validationMiddleware } from '../middlewares/validation.middleware';
+import { HttpException } from '../exceptions/HttpException';
+import { PostNotFoundException } from '../exceptions/PostNotFoundException';
 import { CreatePostDto } from './post.dto';
 
 class PostsController implements Controller {
@@ -43,24 +44,31 @@ class PostsController implements Controller {
 			if (post) {
 				response.send(post);
 			} else {
-				next(new HttpException(404, 'Post not found'));
+				// next(new HttpException(404, 'Post not found'));
+				next(new PostNotFoundException(id));
 			}
 		});
 	};
 
-	private modifyPost = (request: express.Request, response: express.Response) => {
+	private modifyPost = (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const id = request.params.id;
 		const postData: Post = request.body;
-		this.post.findByIdAndUpdate(id, postData, { new: true }).then((result) => response.send(result));
+		this.post.findByIdAndUpdate(id, postData, { new: true }).then((result) => {
+			if (result) {
+				response.send(result);
+			} else {
+				next(new PostNotFoundException(id));
+			}
+		});
 	};
 
-	private deletePost = (request: express.Request, response: express.Response) => {
+	private deletePost = (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const id = request.params.id;
 		this.post.findByIdAndDelete(id).then((successResponse) => {
 			if (successResponse) {
 				response.sendStatus(200);
 			} else {
-				response.sendStatus(404);
+				next(new PostNotFoundException(id));
 			}
 		});
 	};
