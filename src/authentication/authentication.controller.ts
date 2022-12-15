@@ -46,8 +46,9 @@ class AuthenticationController implements Controller {
 		const user = await this.user.findOne({ email: loginData.email });
 
 		if (user) {
-			const doesPasswordMatch = await bcrypt.compare(loginData.password, user.password);
-			if (doesPasswordMatch) {
+			// user.get('password')找不到password属性时,将返回null值.{ getters:false }指不用model里定义的获取器方法拿这个password值
+			const isPasswordMatch = await bcrypt.compare(loginData.password, user.get('password', null, { getters: false }));
+			if (isPasswordMatch) {
 				user.password = undefined;
 				const tokenData = this.createToken(user);
 				response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);

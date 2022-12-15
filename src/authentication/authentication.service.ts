@@ -20,7 +20,6 @@ class AuthenticationService {
 			password: hashedPassword,
 		});
 
-		user.password = undefined;
 		const tokenData = this.createToken(user);
 		const cookie = this.createCookie(tokenData);
 

@@ -38,7 +38,7 @@ class App {
 		const { MONGODB_URL } = process.env;
 
 		mongoose.connect(MONGODB_URL, (err) => {
-			console.log(`数据库正在启动中~~~~~~,错误回调: `, err);
+			console.log(`数据库已启动, `, err ?? '没有错误');
 		});
 	}
 

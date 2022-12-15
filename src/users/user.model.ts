@@ -8,21 +8,31 @@ const addressSchema = new mongoose.Schema({
 	country: String,
 });
 
-const userSchema = new mongoose.Schema({
-	email: String,
-	name: String,
-	password: String,
-	address: {
-		// NOTE:
-		type: addressSchema,
-		require: false,
-		default: {
-			country: '英国',
-			city: '白金汉宫',
-			street: '民主路',
+const userSchema = new mongoose.Schema(
+	{
+		email: String,
+		name: String,
+		password: {
+			type: String,
+			get: (): undefined => undefined,
+		},
+		address: {
+			// NOTE:
+			type: addressSchema,
+			require: false,
+			default: {
+				country: '英国',
+				city: '白金汉宫',
+				street: '民主路',
+			},
 		},
 	},
-});
+	{
+		toJSON: {
+			getters: true,
+		},
+	},
+);
 
 const userModel = mongoose.model<User & mongoose.Document>('User', userSchema);
 
