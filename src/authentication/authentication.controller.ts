@@ -10,11 +10,13 @@ import { LogInDto } from './login.dto';
 import { WrongCredentialException } from '../exceptions/WrongCredentialException';
 import { TokenData } from 'interfaces/tokenData.interface';
 import { User } from 'users/user.interface';
+import AuthenticationService from './authentication.service';
 
 class AuthenticationController implements Controller {
 	public path = '/auth';
 	public router = express.Router();
 	private user = userModel;
+	private authenticationService = new AuthenticationService();
 
 	constructor() {
 		this.initializeRoutes();
@@ -29,20 +31,13 @@ class AuthenticationController implements Controller {
 	private registration = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const userData: CreateUserDto = request.body;
 
-		if (await this.user.findOne({ email: userData.email })) {
-			next(new EmailExistsException(userData.email));
-		} else {
-			const hashedPassword = await bcrypt.hash(userData.password, 10);
-			const user = await this.user.create({
-				...userData,
-				password: hashedPassword,
-			});
-			// NOTE: 过滤密码,不返回
-			user.password = undefined;
-			const tokenData = this.createToken(user);
-			response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+		try {
+			const { cookie, user } = await this.authenticationService.register(userData);
 
+			response.setHeader('Set-Cookie', [cookie]);
 			response.send(user);
+		} catch (error) {
+			next(error);
 		}
 	};
 
