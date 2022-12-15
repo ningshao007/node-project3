@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { userModal } from '../users/user.model';
+import { userModel } from '../users/user.model';
 import Controller from '../interfaces/controller.interface';
 import { validationMiddleware } from '../middlewares/validation.middleware';
 import { CreateUserDto } from '../users/user.dto';
@@ -14,7 +14,7 @@ import { User } from 'users/user.interface';
 class AuthenticationController implements Controller {
 	public path = '/auth';
 	public router = express.Router();
-	private user = userModal;
+	private user = userModel;
 
 	constructor() {
 		this.initializeRoutes();

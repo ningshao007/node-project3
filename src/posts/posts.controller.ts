@@ -3,7 +3,7 @@ import Controller from '../interfaces/controller.interface';
 import Post from './post.interface';
 import { postModel } from './posts.model';
 import { validationMiddleware } from '../middlewares/validation.middleware';
-import { HttpException } from '../exceptions/HttpException';
+import authMiddleware from '../middlewares/auth.middleware';
 import { PostNotFoundException } from '../exceptions/PostNotFoundException';
 import { CreatePostDto } from './post.dto';
 
@@ -17,11 +17,11 @@ class PostsController implements Controller {
 	}
 
 	public initializeRoutes() {
-		this.router.post(this.path, validationMiddleware(CreatePostDto), this.createPost);
-		this.router.get(`${this.path}/:id`, this.getPostById);
-		this.router.get(this.path, this.getAllPosts);
-		this.router.patch(`${this.path}/:id`, validationMiddleware(CreatePostDto, true), this.modifyPost);
-		this.router.delete(`${this.path}/:id`, this.deletePost);
+		this.router.post(this.path, authMiddleware, validationMiddleware(CreatePostDto), this.createPost);
+		this.router.get(`${this.path}/:id`, authMiddleware, this.getPostById);
+		this.router.get(this.path, authMiddleware, this.getAllPosts);
+		this.router.patch(`${this.path}/:id`, authMiddleware, validationMiddleware(CreatePostDto, true), this.modifyPost);
+		this.router.delete(`${this.path}/:id`, authMiddleware, this.deletePost);
 	}
 
 	private createPost = (request: express.Request, response: express.Response) => {
