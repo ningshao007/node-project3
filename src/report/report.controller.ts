@@ -16,54 +16,58 @@ class ReportController implements Controller {
 	}
 
 	private generateReport = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-		const usersByCountries = await this.user.aggregate([
-			{
-				$match: {
-					'address.country': {
-						$exists: true,
-					},
-				},
-			},
-			{
-				$group: {
-					_id: {
-						country: '$address.country',
-					},
-					users: {
-						$push: {
-							_id: '$_id',
-							name: '$name',
+		try {
+			const usersByCountries = await this.user.aggregate([
+				{
+					$match: {
+						'address.country': {
+							$exists: true,
 						},
 					},
-					count: {
-						$sum: 1,
+				},
+				{
+					$group: {
+						_id: {
+							country: '$address.country',
+						},
+						users: {
+							$push: {
+								_id: '$_id',
+								name: '$name',
+							},
+						},
+						count: {
+							$sum: 1,
+						},
 					},
 				},
-			},
-			{
-				$lookup: {
-					from: 'posts',
-					localField: 'users._id',
-					foreignField: 'author',
-					as: 'articles',
-				},
-			},
-			{
-				$addFields: {
-					amountOfArticles: {
-						$size: '$articles',
+				{
+					$lookup: {
+						from: 'posts',
+						localField: 'users._id',
+						foreignField: 'author',
+						as: 'articles',
 					},
 				},
-			},
-			{
-				$sort: {
-					amountOfArticles: 1,
+				{
+					$addFields: {
+						amountOfArticles: {
+							$size: '$articles',
+						},
+					},
 				},
-			},
-		]);
-		response.send({
-			usersByCountries,
-		});
+				{
+					$sort: {
+						amountOfArticles: 1,
+					},
+				},
+			]);
+			response.send({
+				usersByCountries,
+			});
+		} catch (error) {
+			response.status(500).send({ message: '服务端错误', ok: false });
+		}
 	};
 }
 
