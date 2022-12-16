@@ -21,7 +21,7 @@ class PostsController implements Controller {
 		this.router.post(this.path, authMiddleware, validationMiddleware(CreatePostDto), this.createPost);
 		this.router.get(`${this.path}/:id`, authMiddleware, this.getPostById);
 		this.router.get(this.path, authMiddleware, this.getAllPosts);
-		this.router.patch(`${this.path}/:id`, authMiddleware, validationMiddleware(CreatePostDto, true), this.modifyPost);
+		this.router.put(`${this.path}/:id`, authMiddleware, validationMiddleware(CreatePostDto), this.modifyPost);
 		this.router.delete(`${this.path}/:id`, authMiddleware, this.deletePost);
 	}
 
@@ -71,31 +71,31 @@ class PostsController implements Controller {
 	private modifyPost = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const id = request.params.id;
 		const postData: Post = request.body;
-		const post = await this.post.findByIdAndUpdate(id, postData, { new: true });
 
-		if (post) {
-			response.send(post);
-		} else {
-			next(new PostNotFoundException(id));
+		try {
+			const post = await this.post.findByIdAndUpdate(id, postData, { new: true });
+
+			if (post) {
+				response.send(post);
+			} else {
+				next(new PostNotFoundException(id));
+			}
+		} catch (error) {
+			next(new Error(error));
+			// response.status(500).send('oops');
 		}
-		// this.post.findByIdAndUpdate(id, postData, { new: true }).then((result) => {
-		// 	if (result) {
-		// 		response.send(result);
-		// 	} else {
-		// 		next(new PostNotFoundException(id));
-		// 	}
-		// });
 	};
 
 	private deletePost = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const id = request.params.id;
-		this.post.findByIdAndDelete(id).then((successResponse) => {
-			if (successResponse) {
-				response.sendStatus(200);
-			} else {
-				next(new PostNotFoundException(id));
-			}
-		});
+
+		try {
+			const result = await this.post.findByIdAndDelete(id);
+
+			response.json({ message: 'OK', result: result });
+		} catch (error) {
+			next(new PostNotFoundException(id));
+		}
 	};
 }
 
