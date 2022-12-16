@@ -52,12 +52,19 @@ class PostsController implements Controller {
 
 	private getPostById = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const id = request.params.id;
-		const post = await this.post.findById(id);
 
-		if (post) {
-			response.send(post);
-		} else {
-			next(new PostNotFoundException(id));
+		try {
+			const post = await this.post.findById(id);
+
+			if (post) {
+				response.send(post);
+			} else {
+				// NOTE: this.app.use(errorMiddleware)会到这里来
+				next(new PostNotFoundException(id));
+			}
+		} catch (error) {
+			// response.status(500).send({ message: 'oops,something went wrong' });
+			next(new Error('OOPS!!!!,please give me the exist ID'));
 		}
 	};
 
