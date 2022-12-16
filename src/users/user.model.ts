@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema(
 	},
 );
 
+// NOTE: 如果没有下面的, => Cannot populate path `posts` because it is not in your schema. Set the `strictPopulate` option to false to override.
 userSchema.virtual('posts', {
 	ref: 'Post',
 	localField: '_id',
