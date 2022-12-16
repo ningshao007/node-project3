@@ -41,8 +41,13 @@ class PostsController implements Controller {
 	};
 
 	private getAllPosts = async (request: express.Request, response: express.Response) => {
-		const posts = await this.post.find().populate('author', '-password');
-		response.send(posts);
+		try {
+			const posts = await this.post.find().populate('author', '-password');
+
+			response.send(posts);
+		} catch (error) {
+			response.status(500).send({ message: 'oops,something went wrong,please try it later', OK: false });
+		}
 	};
 
 	private getPostById = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
