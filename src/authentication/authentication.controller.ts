@@ -43,22 +43,28 @@ class AuthenticationController implements Controller {
 
 	private loggingIn = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
 		const loginData: LogInDto = request.body;
-		const user = await this.user.findOne({ email: loginData.email });
 
-		if (user) {
-			// user.get('password')找不到password属性时,将返回null值.{ getters:false }指不用model里定义的获取器方法拿这个password值
-			const isPasswordMatch = await bcrypt.compare(loginData.password, user.get('password', null, { getters: false }));
-			if (isPasswordMatch) {
-				user.password = undefined;
-				const tokenData = this.createToken(user);
-				response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+		try {
+			const user = await this.user.findOne({ email: loginData.email });
+			// console.log('password', user.password, user); user.password === undefined
 
-				response.send(user);
+			if (user) {
+				// user.get('password')找不到password属性时,将返回null值.{ getters:false }指不用model里定义的获取器方法拿这个password值
+				const isPasswordMatch = await bcrypt.compare(loginData.password, user.get('password', null, { getters: false }));
+				if (isPasswordMatch) {
+					user.password = undefined;
+					const tokenData = this.createToken(user);
+					response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+
+					response.send(user);
+				} else {
+					next(new WrongCredentialException());
+				}
 			} else {
 				next(new WrongCredentialException());
 			}
-		} else {
-			next(new WrongCredentialException());
+		} catch (error) {
+			next(error);
 		}
 	};
 
