@@ -42,20 +42,22 @@ class UserController implements Controller {
 		const id = request.params.id;
 		const withPosts = request.query.withPosts;
 
-		const userQuery = await this.user.findById(id);
+		try {
+			const userQuery = await this.user.findById(id);
 
-		if (!userQuery) {
-			response.send(new UserNotFoundException(id));
+			if (!userQuery) {
+				throw new UserNotFoundException(id);
+			}
 
-			throw new UserNotFoundException(id);
-		}
+			if (withPosts === 'true') {
+				const user = await userQuery.populate('posts');
 
-		if (withPosts === 'true') {
-			const user = await userQuery.populate('posts');
-
-			response.send(user);
-		} else {
-			response.send(userQuery);
+				response.send(user);
+			} else {
+				response.json(userQuery);
+			}
+		} catch (error) {
+			response.status(500).send({ message: error.message });
 		}
 	};
 }
