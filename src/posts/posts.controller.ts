@@ -6,6 +6,7 @@ import { validationMiddleware } from '../middlewares/validation.middleware';
 import authMiddleware from '../middlewares/auth.middleware';
 import { PostNotFoundException } from '../exceptions/PostNotFoundException';
 import { CreatePostDto } from './post.dto';
+import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 
 class PostsController implements Controller {
 	public path = '/posts';
@@ -24,12 +25,11 @@ class PostsController implements Controller {
 		this.router.delete(`${this.path}/:id`, authMiddleware, this.deletePost);
 	}
 
-	private createPost = (request: express.Request, response: express.Response) => {
-		const postData: Post = request.body;
+	private createPost = (request: RequestWithUser, response: express.Response) => {
+		const postData = request.body;
 		const createdPost = new this.post({
 			...postData,
-			// @ts-ignore
-			// author: request.user._id,
+			author: request.user._id,
 		});
 		createdPost.save().then((savedPost) => {
 			response.send(savedPost);
