@@ -25,15 +25,19 @@ class PostsController implements Controller {
 		this.router.delete(`${this.path}/:id`, authMiddleware, this.deletePost);
 	}
 
-	private createPost = (request: RequestWithUser, response: express.Response) => {
+	private createPost = async (request: RequestWithUser, response: express.Response) => {
 		const postData = request.body;
-		const createdPost = new this.post({
-			...postData,
-			author: request.user._id,
-		});
-		createdPost.save().then((savedPost) => {
-			response.send(savedPost);
-		});
+
+		try {
+			const createdPost = await this.post.create({
+				...postData,
+				author: request.user._id,
+			});
+
+			response.json(createdPost);
+		} catch (error) {
+			response.status(500).send({ message: '服务器出错了' });
+		}
 	};
 
 	private getAllPosts = async (request: express.Request, response: express.Response) => {
